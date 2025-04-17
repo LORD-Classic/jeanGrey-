@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Convert to Grayscale</title>
+  <style>
+    body {
+      background: #e0e0e0;
+      font-family: 'Segoe UI', sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px;
+    }
+
+    h1 {
+      color: #333;
+      margin-bottom: 30px;
+    }
+
+    .upload-section {
+      margin-bottom: 20px;
+    }
+
+    input[type="file"] {
+      padding: 6px;
+      border: 1px solid #aaa;
+      border-radius: 5px;
+    }
+
+    canvas {
+      border: 2px solid #444;
+      max-width: 90%;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Convert Image to Grayscale</h1>
+
+  <div class="upload-section">
+    <input type="file" id="imageLoader" accept="image/*">
+  </div>
+
+  <canvas id="grayCanvas"></canvas>
+
+  <script>
+    const fileInput = document.getElementById('imageLoader');
+    const canvas = document.getElementById('grayCanvas');
+    const context = canvas.getContext('2d');
+
+    fileInput.addEventListener('change', (event) => {
+      const selectedImage = event.target.files[0];
+      if (!selectedImage) return;
+
+      const reader = new FileReader();
+
+      reader.onload = (loadEvent) => {
+        const imgElement = new Image();
+        imgElement.src = loadEvent.target.result;
+
+        imgElement.onload = () => {
+          canvas.width = imgElement.width;
+          canvas.height = imgElement.height;
+
+          context.drawImage(imgElement, 0, 0);
+          const imgData = context.getImageData(0, 0, canvas.width, canvas.height);
+          const pixels = imgData.data;
+
+          for (let i = 0; i < pixels.length; i += 4) {
+            const red = pixels[i];
+            const green = pixels[i + 1];
+            const blue = pixels[i + 2];
+            const grayscale = 0.3 * red + 0.59 * green + 0.11 * blue;
+
+            pixels[i] = pixels[i + 1] = pixels[i + 2] = grayscale;
+          }
+
+          context.putImageData(imgData, 0, 0);
+        };
+      };
+
+      reader.readAsDataURL(selectedImage);
+    });
+  </script>
+
+</body>
+</html>
